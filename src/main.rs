@@ -2,10 +2,9 @@ use regex::Regex;
 
 const SINGLE_OPTION_REGEX: &str = r"-{1,2}([[:alpha:]]+)";
 const KEY_VALUE_OPTION_REGEX: &str = r"-([[:alpha:]]+=.+)";
-const BOTH_OPTION_REGEX: &str = concat!(
-    r"-{1,2}([[:alpha:]]+)", 
-    r"|", 
-    r"-([[:alpha:]]+=.+)");
+
+const BOTH_OPTION_REGEX: &str = r"-{1,2}([[:alpha:]]+)|([[:alpha:]]+=.+)";
+    
 
 
 const SINGLE_OPTIONS_EXAMPLE: &str = "-a -bb -ccc -ddd -  -- --- --v --verbose";
