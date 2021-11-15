@@ -91,58 +91,5 @@ fn main() {
         }
     }
     println!("Regex finished.\n");
-
-
-
-/*
-    println!("Single options!");
-    let key_value_options_string = "-a=va -bb=vbb -ccc=vccc -ddd=vddd -e=  -eee= --e= ---- -=- ====";
-    println!("Example string: {}", key_value_options_string);
-
-    let kay_value_options = key_value_options_string.split(" ");
-
-    let mut i: i32 = 0;
-    for option in kay_value_options.clone() {
-        println!("Option {}: {}", i,  option);
-        i = i + 1;
-    }
-        
-    println!("Regex result:");
-    let single_regex = Regex::new(r"-([[:alpha:]]+=.+)").unwrap();
-
-    let mut i: i32 = 0;
-    for option in single_options.clone() {
-        for cap in single_regex.captures_iter(option) {
-            println!("Cap[{}] length = {}. Cap[{}][0] = {}", &i, &cap.len(),  &i, &cap[0]);         
-            i = i + 1;
-        }
-    }
-    println!("Regex finished.\n");
-*/
-/*
-    println!("Both options!");
-    let both_options_string = " -a -bb -ccc -ddd -  -- --- --v --verbose-a=va -bb=vbb -ccc=vccc -ddd=vddd -e=  -eee= --e= ---- -=- ====";
-    println!("Example string: {}", both_options_string);
-
-    let single_options = both_options_string.split(" ");
-
-    let mut i: i32 = 0;
-    for option in single_options.clone() {
-        println!("Option {}: {}", i,  option);
-        i = i + 1;
-    }
-        
-    println!("Regex result:");
-    let single_regex = Regex::new(r"-([[:alpha:]]+=.+)").unwrap();
-
-    let mut i: i32 = 0;
-    for option in single_options.clone() {
-        for cap in single_regex.captures_iter(option) {
-            println!("Cap[{}] length = {}. Cap[{}][0] = {}", &i, &cap.len(),  &i, &cap[0]);         
-            i = i + 1;
-        }
-    }
-    println!("Regex finished.\n");
-   */
 }
 
