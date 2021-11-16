@@ -3,7 +3,8 @@ use regex::Regex;
 const SINGLE_OPTION_REGEX: &str = r"-{1,2}([[:alpha:]]+)";
 const KEY_VALUE_OPTION_REGEX: &str = r"-([[:alpha:]]+=.+)";
 
-const BOTH_OPTION_REGEX: &str = r"-{1,2}([[:alpha:]]+)|([[:alpha:]]+=.+)";
+//const BOTH_OPTION_REGEX: &str = r"-{1,2}([[:alpha:]]+)|([[:alpha:]]+=.+)";
+const BOTH_OPTION_REGEX: &str = r"((-{1})([[:alpha:]]+=.+)( |$))|((-{1,2})([[:alpha:]]+))";
     
 
 
@@ -11,7 +12,7 @@ const SINGLE_OPTIONS_EXAMPLE: &str = "-a -bb -ccc -ddd -  -- --- --v --verbose";
 const KEY_VALUE_OPTIONS_EXAMPLE: &str ="-a=va -bb=vbb -ccc=vccc -ddd=vddd -e=  -eee= --e= ---- -=- ====";
 const BOTH_OPTIONS_EXAMPLE: &str = concat!(
     "-a -bb -ccc -ddd -  -- --- --v --verbose", 
-    "-a=va -bb=vbb -ccc=vccc -ddd=vddd -e=  -eee= --e= ---- -=- ====");
+    " -a=va -bb=vbb -ccc=vccc -ddd=vddd -e=  -eee= --e= ---- -=- ====");
 
 
 fn main() {
