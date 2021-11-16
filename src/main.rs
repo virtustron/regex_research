@@ -3,8 +3,7 @@ use regex::Regex;
 const SINGLE_OPTION_REGEX: &str = r"-{1,2}([[:alpha:]]+)";
 const KEY_VALUE_OPTION_REGEX: &str = r"-([[:alpha:]]+=.+)";
 
-//const BOTH_OPTION_REGEX: &str = r"-{1,2}([[:alpha:]]+)|([[:alpha:]]+=.+)";
-const BOTH_OPTION_REGEX: &str = r"((-{1})([[:alpha:]]+=.+)( |$))|((-{1,2})([[:alpha:]]+))";
+const BOTH_OPTION_REGEX: &str = r"(?P<key_value>(-{1})([[:alpha:]]+=.+)( |$))|(?P<single>(-{1,2})([[:alpha:]]+)( |$))";
     
 
 
