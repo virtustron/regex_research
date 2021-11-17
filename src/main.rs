@@ -1,14 +1,16 @@
+#![feature(hash_drain_filter)]
+use std::collections::HashMap;
+
 #[macro_use]
 extern crate lazy_static;
 
-
-// https://regex101.com/
-//^(((-{1})([a-zA-Z_-]+)=[[:alpha:]]+)|(-{1,2})([[:alpha:]]+))$
+// TODO use typedef for compiler options
 
 use regex::Regex;
 
 use std::collections::HashSet;
-use std::collections::HashMap;
+
+
 use std::iter::FromIterator;
 
 const OPTIONS_SEPARATOR: &str = r" ";
@@ -32,7 +34,7 @@ fn main() {
 
 
 
-
+    /*
 
     // ---------------------------------
     println!("Single options!");
@@ -110,7 +112,9 @@ fn main() {
     }
     println!("Regex finished.\n");
 
+    */
 
+    
     // 1. Get options as string
     // 2. Get whitelist of options
     // 3. Split options by "space"
@@ -134,38 +138,44 @@ fn main() {
     // 4. Parse each option ad extract key-s from "key and value" pairs or only "key"
     let parsing_result = parse_compiler_options(&options);
 
+    
     match parsing_result {
-        Ok(parsed_options) => {
+        Ok(mut parsed_options) => {
+            let options_keys: Vec<String> = parsed_options.keys().map(|s| s.to_string()).collect();
+            
+            let filtering_result =  filter_compiler_options(&options_keys, &options_whitelist);
+    
+            match filtering_result {
+                Ok(declined_keys) => {
+                    let filtered_options: HashMap<String, String> = parsed_options.drain_filter(|k, _v| declined_keys.contains(k)).collect();           
 
+                    println!("Accepted options list:");
+            
+                    for option in filtered_options {
+                        println!("Option key: {}, option value: {}", option.0, option.1);
+                    }
+
+                }
+        
+                Err(filtered_options) => {
+                    println!("Declined options list:");
+            
+                    for option in filtered_options {
+                        println!("Option: {}", option);
+                    }
+                }
+            }
         }
 
         Err(e) => {
             println!("Parsing error: {}", e);
+            return;
         }
     }
 
     
     
-    let filtering_result =  filter_compiler_options(&options, &options_whitelist);
     
-    match filtering_result {
-        Ok(filtered_options) => {
-            println!("Accepted options list:");
-            
-            for option in filtered_options {
-                println!("Option: {}", option);
-            }
-
-        }
-        
-        Err(filtered_options) => {
-            println!("Declined options list:");
-            
-            for option in filtered_options {
-                println!("Option: {}", option);
-            }
-        }
-    }
 }
 
 
@@ -173,8 +183,10 @@ fn to_hashset(vector: &Vec<String>) -> HashSet<String> {
     HashSet::from_iter(vector.iter().cloned())
 }
 
+
+
 // if there are one or more option in "options" from "whitelist"
-//     - return Ok(accepted_options)
+//     - return Ok(declined_options)
 // else (zero "accepted option")
 //     - return Err(declined_options)
 fn filter_compiler_options(options: &Vec<String>, options_whitelist: &Vec<String>) -> Result<Vec<String>, Vec<String>> {
@@ -191,16 +203,16 @@ fn filter_compiler_options(options: &Vec<String>, options_whitelist: &Vec<String
         Err(declined_options)
     } 
     else {
-        Ok(accepted_options)
+        Ok(declined_options)
     }
 }
 
 fn parse_compiler_options(options: &Vec<String>) -> Result<HashMap<String, String>, &'static str> {
     if options.len() > 0 {
-        let key_value_options: HashMap<String, String> = HashMap::new();
+        let mut key_value_options: HashMap<String, String> = HashMap::new();
 
-        let key: String;
-        let value: String;
+        let mut key: String;
+        let mut value: String;
 
         for option in options {
             let extraction_result = extract_key_and_value(option);
