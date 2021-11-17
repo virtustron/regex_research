@@ -8,6 +8,7 @@ extern crate lazy_static;
 use regex::Regex;
 
 use std::collections::HashSet;
+use std::collections::HashMap;
 use std::iter::FromIterator;
 
 const OPTIONS_SEPARATOR: &str = r" ";
@@ -130,8 +131,20 @@ fn main() {
     // 3. Split options by "space"
     let options: Vec<String> = raw_options.split(OPTIONS_SEPARATOR).map(|s| s.to_string()).collect();
 
+    // 4. Parse each option ad extract key-s from "key and value" pairs or only "key"
+    let parsing_result = parse_compiler_options(&options);
+
+    match parsing_result {
+        Ok(parsed_options) => {
+
+        }
+
+        Err(e) => {
+            println!("Parsing error: {}", e);
+        }
+    }
+
     
-    let options_whitelist: Vec<String> = Vec::new();
     
     let filtering_result =  filter_compiler_options(&options, &options_whitelist);
     
@@ -182,10 +195,71 @@ fn filter_compiler_options(options: &Vec<String>, options_whitelist: &Vec<String
     }
 }
 
+fn parse_compiler_options(options: &Vec<String>) -> Result<HashMap<String, String>, &'static str> {
+    if options.len() > 0 {
+        let key_value_options: HashMap<String, String> = HashMap::new();
+
+        let key: String;
+        let value: String;
+
+        for option in options {
+            let extraction_result = extract_key_and_value(option);
+
+            match extraction_result {
+                Ok(key_value) => {
+                    key = key_value.0;
+                    value = key_value.1;
+
+                    key_value_options.insert(key, value);
+                }
+
+                Err(e) => {
+                    return Err(e)
+                }
+            }
+        }
+
+        Ok(key_value_options)
+    }    
+    else {
+        Err("Options vector is empty")
+    }
+
+
+}
+
+
+fn extract_key_and_value(compiler_option: &String) -> Result<(String, String), &'static str> {
+    if compiler_option.len() > 0 {
+        lazy_static! {
+            static ref RE: Regex = Regex::new(r"/^-{1,2}((?P<key_with_value>[[:alpha:]]+)=(?P<value_with_key>.+))|(?P<single_key>[[:alpha:]]+)$").unwrap();
+        }
+        
+        
+        let key: String = RE.captures(compiler_option).and_then(|cap| {cap.name("key_with_value").map(|key| key.as_str())}).unwrap().to_string();
+        let value: String;
+
+        if key.len() > 0 {
+            // try to find option as <key>=<value>
+            value = RE.captures(compiler_option).and_then(|cap| {cap.name("value_with_key").map(|key| key.as_str())}).unwrap().to_string();
+        } 
+        else {
+            // only "key" (without "=<value>" part)
+            value = String::new();
+        }       
+
+        Ok((key, value))
+    }    
+    else {
+        Err("Option string is empty")
+    }
+}
 
 
 
 fn extract_option_key(input: &str) -> Option<&str> {
+    
+    
     lazy_static! {
         static ref RE: Regex = Regex::new(r"(-{1})(?P<key>([[:alpha:]]+))(=)(?P<value>(.+))").unwrap();
     }
