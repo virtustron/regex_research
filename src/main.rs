@@ -10,6 +10,8 @@ use regex::Regex;
 use std::collections::HashSet;
 use std::iter::FromIterator;
 
+const OPTIONS_SEPARATOR: &str = r" ";
+
 const SINGLE_OPTION_REGEX: &str = r"-{1,2}([[:alpha:]]+)";
 const KEY_VALUE_OPTION_REGEX: &str = r"-([[:alpha:]]+=.+)";
 
@@ -117,7 +119,18 @@ fn main() {
     //    - vector of accepted options 
     //    - vector of discarded options
 
-    let options: Vec<String> = Vec::new();
+    // 1. Get options as string
+    let raw_options = String::from(BOTH_OPTIONS_EXAMPLE);
+
+    // 2. Get whitelist of options
+    // it's temporary - JSON will be used
+    let mut options_whitelist: Vec<String> = Vec::new();
+    options_whitelist.push("-v".to_string());
+
+    // 3. Split options by "space"
+    let options: Vec<String> = raw_options.split(OPTIONS_SEPARATOR).map(|s| s.to_string()).collect();
+
+    
     let options_whitelist: Vec<String> = Vec::new();
     
     let filtering_result =  filter_compiler_options(&options, &options_whitelist);
@@ -158,21 +171,8 @@ fn filter_compiler_options(options: &Vec<String>, options_whitelist: &Vec<String
     let accepted_options_set: HashSet<&String>  = options_set.intersection(&options_whitelist_set).collect();
     let declined_options_set: HashSet<&String> =  options_set.difference(&options_whitelist_set).collect();
 
-    // instead of: let accepted_options: Vec<&String> = accepted_options_set.into_iter().collect();
-    let mut accepted_options: Vec<String> = Vec::new();
-    let accepted_options_ref: Vec<&String> = accepted_options_set.into_iter().collect();
-
-    for option in accepted_options_ref {
-        accepted_options.push(option.clone());
-    }
-
-    // instead of: let declined_options: Vec<&String> = declined_options_set.into_iter().collect();
-    let mut declined_options: Vec<String> = Vec::new();
-    let declined_options_ref: Vec<&String> = declined_options_set.into_iter().collect();
-
-    for option in declined_options_ref {
-        declined_options.push(option.clone());
-    }
+    let accepted_options: Vec<String> = accepted_options_set.into_iter().map(|s| s.to_string()).collect();    
+    let declined_options: Vec<String> = declined_options_set.into_iter().map(|s| s.to_string()).collect();
 
     if accepted_options.len() == 0 {
         Err(declined_options)
@@ -181,6 +181,7 @@ fn filter_compiler_options(options: &Vec<String>, options_whitelist: &Vec<String
         Ok(accepted_options)
     }
 }
+
 
 
 
