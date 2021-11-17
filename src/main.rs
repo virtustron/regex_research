@@ -7,6 +7,9 @@ extern crate lazy_static;
 
 use regex::Regex;
 
+use std::collections::HashSet;
+use std::iter::FromIterator;
+
 const SINGLE_OPTION_REGEX: &str = r"-{1,2}([[:alpha:]]+)";
 const KEY_VALUE_OPTION_REGEX: &str = r"-([[:alpha:]]+=.+)";
 
@@ -24,14 +27,7 @@ const BOTH_OPTIONS_EXAMPLE: &str = concat!(
 fn main() {
     println!("Hello Regex!\n");
 
-    // 1. Get options as string
-    // 2. Get whitelist of options
-    // 3. Split options by "space"
-    // 4. Parse each option ad extract key-s from "key and value" pairs or only "key"
-    // 5. Check each option key using given whitelist
-    // 3. Return
-    //    - vector of accepted options 
-    //    - vector of discarded options
+
 
 
 
@@ -110,16 +106,66 @@ fn main() {
         }
     }
     println!("Regex finished.\n");
+
+
+    // 1. Get options as string
+    // 2. Get whitelist of options
+    // 3. Split options by "space"
+    // 4. Parse each option ad extract key-s from "key and value" pairs or only "key"
+    // 5. Check each option key using given whitelist
+    // 3. Return
+    //    - vector of accepted options 
+    //    - vector of discarded options
+
+    let 
+
+
+
 }
 
 
-fn filter_compiler_options(
-    options: &Vec<String>, 
-    options_whitelist: &Vec<String>, 
-    ) -> Result<Vec<String>, Vec<String>> {
 
 
+
+
+fn to_hashset(vector: &Vec<String>) -> HashSet<String> {
+    HashSet::from_iter(vector.iter().cloned())
+}
+
+// if there are one or more option in "options" from "whitelist"
+//     - return Ok(accepted_options)
+// else (zero "accepted option")
+//     - return Err(declined_options)
+fn filter_compiler_options(options: &Vec<String>, options_whitelist: &Vec<String>) -> Result<Vec<String>, Vec<String>> {
+    let options_set: HashSet<String>  = to_hashset(options);
+    let options_whitelist_set: HashSet<String> = to_hashset(options_whitelist);
+
+    let accepted_options_set: HashSet<&String>  = options_set.intersection(&options_whitelist_set).collect();
+    let declined_options_set: HashSet<&String> =  options_set.difference(&options_whitelist_set).collect();
+
+    // instead of: let accepted_options: Vec<&String> = accepted_options_set.into_iter().collect();
+    let mut accepted_options: Vec<String> = Vec::new();
+    let accepted_options_ref: Vec<&String> = accepted_options_set.into_iter().collect();
+
+    for option in accepted_options_ref {
+        accepted_options.push(option.clone());
     }
+
+    // instead of: let declined_options: Vec<&String> = declined_options_set.into_iter().collect();
+    let mut declined_options: Vec<String> = Vec::new();
+    let declined_options_ref: Vec<&String> = declined_options_set.into_iter().collect();
+
+    for option in declined_options_ref {
+        declined_options.push(option.clone());
+    }
+
+    if accepted_options.len() == 0 {
+        Err(declined_options)
+    } 
+    else {
+        Ok(accepted_options)
+    }
+}
 
 
 
