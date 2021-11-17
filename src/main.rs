@@ -1,3 +1,10 @@
+#[macro_use]
+extern crate lazy_static;
+
+
+// https://regex101.com/
+//^(((-{1})([a-zA-Z_-]+)=[[:alpha:]]+)|(-{1,2})([[:alpha:]]+))$
+
 use regex::Regex;
 
 const SINGLE_OPTION_REGEX: &str = r"-{1,2}([[:alpha:]]+)";
@@ -16,6 +23,16 @@ const BOTH_OPTIONS_EXAMPLE: &str = concat!(
 
 fn main() {
     println!("Hello Regex!\n");
+
+    // 1. Get options as string
+    // 2. Get whitelist of options
+    // 3. Split options by "space"
+    // 4. Parse each option ad extract key-s from "key and value" pairs or only "key"
+    // 5. Check each option key using given whitelist
+    // 3. Return
+    //    - vector of accepted options 
+    //    - vector of discarded options
+
 
 
     // ---------------------------------
@@ -61,7 +78,9 @@ fn main() {
     let mut i: i32 = 0;
     for option in options.clone() {
         for cap in regex.captures_iter(option) {
-            println!("Cap[{}] length = {}. Cap[{}][0] = {}", &i, &cap.len(),  &i, &cap[0]);         
+            let key_value = extract_option_key(&cap[0]);
+
+            println!("Cap[{}] length = {}. Cap[{}][0] = {}. Option key = {}", &i, &cap.len(),  &i, &cap[0], &key_value.unwrap());         
             i = i + 1;
         }
     }
@@ -91,5 +110,23 @@ fn main() {
         }
     }
     println!("Regex finished.\n");
+}
+
+
+fn filter_compiler_options(
+    options: &Vec<String>, 
+    options_whitelist: &Vec<String>, 
+    ) -> Result<Vec<String>, Vec<String>> {
+
+
+    }
+
+
+
+fn extract_option_key(input: &str) -> Option<&str> {
+    lazy_static! {
+        static ref RE: Regex = Regex::new(r"(-{1})(?P<key>([[:alpha:]]+))(=)(?P<value>(.+))").unwrap();
+    }
+    RE.captures(input).and_then(|cap| {cap.name("key").map(|key| key.as_str())})
 }
 
