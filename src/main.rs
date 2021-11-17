@@ -117,15 +117,30 @@ fn main() {
     //    - vector of accepted options 
     //    - vector of discarded options
 
-    let 
+    let options: Vec<String> = Vec::new();
+    let options_whitelist: Vec<String> = Vec::new();
+    
+    let filtering_result =  filter_compiler_options(&options, &options_whitelist);
+    
+    match filtering_result {
+        Ok(filtered_options) => {
+            println!("Accepted options list:");
+            
+            for option in filtered_options {
+                println!("Option: {}", option);
+            }
 
-
-
+        }
+        
+        Err(filtered_options) => {
+            println!("Declined options list:");
+            
+            for option in filtered_options {
+                println!("Option: {}", option);
+            }
+        }
+    }
 }
-
-
-
-
 
 
 fn to_hashset(vector: &Vec<String>) -> HashSet<String> {
