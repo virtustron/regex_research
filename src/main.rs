@@ -5,24 +5,15 @@ use std::collections::HashMap;
 extern crate lazy_static;
 
 // TODO use typedef for compiler options
-
 use regex::Regex;
-
 use std::collections::HashSet;
-
-
 use std::iter::FromIterator;
 
 const OPTIONS_SEPARATOR: &str = r" ";
 
-
-    
-
-
 const BOTH_OPTIONS_EXAMPLE: &str = concat!(
     "-a -bb -ccc -ddd -  -- --- --v --verbose", 
     " -a=va -bb=vbb -ccc=vccc -ddd=vddd -e=  -eee= --e= ---- -=- ====");
-
 
 fn main() {
     println!("Hello Regex!\n");
@@ -40,7 +31,6 @@ fn main() {
     let raw_options = String::from(BOTH_OPTIONS_EXAMPLE);
     println!("Example string: {}", BOTH_OPTIONS_EXAMPLE);
     
-
     // 2. Get whitelist of options
     // it's temporary - JSON will be used
     let mut options_whitelist: Vec<String> = Vec::new();
@@ -87,17 +77,12 @@ fn main() {
             return;
         }
     }
-
-    
-    
-    
 }
 
 
 fn to_hashset(vector: &Vec<String>) -> HashSet<String> {
     HashSet::from_iter(vector.iter().cloned())
 }
-
 
 
 // if there are one or more option in "options" from "whitelist"
@@ -121,6 +106,7 @@ fn filter_compiler_options(options: &Vec<String>, options_whitelist: &Vec<String
         Ok(declined_options)
     }
 }
+
 
 fn parse_compiler_options(options: &Vec<String>) -> Result<HashMap<String, String>, &'static str> {
     if options.len() > 0 {
@@ -152,8 +138,6 @@ fn parse_compiler_options(options: &Vec<String>) -> Result<HashMap<String, Strin
     else {
         Err("Options vector is empty")
     }
-
-
 }
 
 
