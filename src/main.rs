@@ -226,7 +226,8 @@ fn parse_compiler_options(options: &Vec<String>) -> Result<HashMap<String, Strin
                 }
 
                 Err(e) => {
-                    return Err(e)
+                    // TODO process incorrect options
+                    //return Err(e)
                 }
             }
         }
@@ -246,21 +247,45 @@ fn extract_key_and_value(compiler_option: &String) -> Result<(String, String), &
         lazy_static! {
             static ref RE: Regex = Regex::new(r"/^-{1,2}((?P<key_with_value>[[:alpha:]]+)=(?P<value_with_key>.+))|(?P<single_key>[[:alpha:]]+)$").unwrap();
         }
+                
+        let key_capture = RE.captures(compiler_option).and_then(|cap| {cap.name("key_with_value").map(|key| key.as_str())});
         
-        
-        let key: String = RE.captures(compiler_option).and_then(|cap| {cap.name("key_with_value").map(|key| key.as_str())}).unwrap().to_string();
-        let value: String;
+        match key_capture {
+            Some(key) => {
+                // case "key_with_value" - value expected
+                let value_capture = RE.captures(compiler_option).and_then(|cap| {cap.name("value_with_key").map(|key| key.as_str())});
 
-        if key.len() > 0 {
-            // try to find option as <key>=<value>
-            value = RE.captures(compiler_option).and_then(|cap| {cap.name("value_with_key").map(|key| key.as_str())}).unwrap().to_string();
-        } 
-        else {
-            // only "key" (without "=<value>" part)
-            value = String::new();
-        }       
+                match value_capture {
+                    Some(value) => {
+                        return Ok((key.to_string(), value.to_string()))
+                    }
 
-        Ok((key, value))
+                    None => {
+                        //let mut error_message = format!("Compiler option value not found in option: {}", compiler_option);
+                        //return Err(error_message.as_ref())
+                        return Err("Compiler option value not found")
+                    }
+                }
+            }
+            None => {
+                // case "single_key" - no value expected
+                let key_capture = RE.captures(compiler_option).and_then(|cap| {cap.name("single_key").map(|key| key.as_str())});
+                let value = String::new();
+
+                match key_capture {
+                    Some(key) => {
+                        return Ok((key.to_string(), value))
+                    }
+
+                    None => {
+                        //let mut error_message = format!("Compiler option key not found in option: {}", compiler_option);
+                        //return Err(&error_message.as_ref())
+                        return Err("Compiler option key not found")
+                    }
+                }
+
+            }
+        }      
     }    
     else {
         Err("Option string is empty")
