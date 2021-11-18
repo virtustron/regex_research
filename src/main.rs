@@ -15,15 +15,10 @@ use std::iter::FromIterator;
 
 const OPTIONS_SEPARATOR: &str = r" ";
 
-const SINGLE_OPTION_REGEX: &str = r"-{1,2}([[:alpha:]]+)";
-const KEY_VALUE_OPTION_REGEX: &str = r"-([[:alpha:]]+=.+)";
 
-const BOTH_OPTION_REGEX: &str = r"(?P<key_value>(-{1})([[:alpha:]]+=.+)( |$))|(?P<single>(-{1,2})([[:alpha:]]+)( |$))";
     
 
 
-const SINGLE_OPTIONS_EXAMPLE: &str = "-a -bb -ccc -ddd -  -- --- --v --verbose";
-const KEY_VALUE_OPTIONS_EXAMPLE: &str ="-a=va -bb=vbb -ccc=vccc -ddd=vddd -e=  -eee= --e= ---- -=- ====";
 const BOTH_OPTIONS_EXAMPLE: &str = concat!(
     "-a -bb -ccc -ddd -  -- --- --v --verbose", 
     " -a=va -bb=vbb -ccc=vccc -ddd=vddd -e=  -eee= --e= ---- -=- ====");
@@ -31,89 +26,6 @@ const BOTH_OPTIONS_EXAMPLE: &str = concat!(
 
 fn main() {
     println!("Hello Regex!\n");
-
-
-
-    /*
-
-    // ---------------------------------
-    println!("Single options!");
-    println!("Example string: {}", SINGLE_OPTIONS_EXAMPLE);
-
-    let options = SINGLE_OPTIONS_EXAMPLE.split(" ");
-    let mut i: i32 = 0;
-
-    for option in options.clone() {
-        println!("Option {}: {}", i,  option);
-        i = i + 1;
-    }
-        
-    println!("Regex result:");
-    let regex = Regex::new(SINGLE_OPTION_REGEX).unwrap();
-
-    let mut i: i32 = 0;
-    for option in options.clone() {
-        for cap in regex.captures_iter(option) {
-            println!("Cap[{}] length = {}. Cap[{}][0] = {}", &i, &cap.len(),  &i, &cap[0]);         
-            i = i + 1;
-        }
-    }
-    println!("Regex finished.\n");
-
-
-    // ---------------------------------
-    println!("Key=Value options!");
-    println!("Example string: {}", KEY_VALUE_OPTIONS_EXAMPLE);
-
-    let options = KEY_VALUE_OPTIONS_EXAMPLE.split(" ");
-    let mut i: i32 = 0;
-
-    for option in options.clone() {
-        println!("Option {}: {}", i,  option);
-        i = i + 1;
-    }
-        
-    println!("Regex result:");
-    let regex = Regex::new(KEY_VALUE_OPTION_REGEX).unwrap();
-
-    let mut i: i32 = 0;
-    for option in options.clone() {
-        for cap in regex.captures_iter(option) {
-            let key_value = extract_option_key(&cap[0]);
-
-            println!("Cap[{}] length = {}. Cap[{}][0] = {}. Option key = {}", &i, &cap.len(),  &i, &cap[0], &key_value.unwrap());         
-            i = i + 1;
-        }
-    }
-    println!("Regex finished.\n");
-
-
-    // ---------------------------------
-    println!("Both options!");
-    println!("Example string: {}", BOTH_OPTIONS_EXAMPLE);
-
-    let options = BOTH_OPTIONS_EXAMPLE.split(" ");
-    let mut i: i32 = 0;
-
-    for option in options.clone() {
-        println!("Option {}: {}", i,  option);
-        i = i + 1;
-    }
-        
-    println!("Regex result:");
-    let regex = Regex::new(BOTH_OPTION_REGEX).unwrap();
-
-    let mut i: i32 = 0;
-    for option in options.clone() {
-        for cap in regex.captures_iter(option) {
-            println!("Cap[{}] length = {}. Cap[{}][0] = {}", &i, &cap.len(),  &i, &cap[0]);         
-            i = i + 1;
-        }
-    }
-    println!("Regex finished.\n");
-
-    */
-
     
     // 1. Get options as string
     // 2. Get whitelist of options
@@ -126,11 +38,14 @@ fn main() {
 
     // 1. Get options as string
     let raw_options = String::from(BOTH_OPTIONS_EXAMPLE);
+    println!("Example string: {}", BOTH_OPTIONS_EXAMPLE);
+    
 
     // 2. Get whitelist of options
     // it's temporary - JSON will be used
     let mut options_whitelist: Vec<String> = Vec::new();
     options_whitelist.push("-v".to_string());
+    options_whitelist.push("-va".to_string());
 
     // 3. Split options by "space"
     let options: Vec<String> = raw_options.split(OPTIONS_SEPARATOR).map(|s| s.to_string()).collect();
@@ -225,7 +140,7 @@ fn parse_compiler_options(options: &Vec<String>) -> Result<HashMap<String, Strin
                     key_value_options.insert(key, value);
                 }
 
-                Err(e) => {
+                Err(_e) => {
                     // TODO process incorrect options
                     //return Err(e)
                 }
@@ -293,13 +208,4 @@ fn extract_key_and_value(compiler_option: &String) -> Result<(String, String), &
 }
 
 
-
-fn extract_option_key(input: &str) -> Option<&str> {
-    
-    
-    lazy_static! {
-        static ref RE: Regex = Regex::new(r"(-{1})(?P<key>([[:alpha:]]+))(=)(?P<value>(.+))").unwrap();
-    }
-    RE.captures(input).and_then(|cap| {cap.name("key").map(|key| key.as_str())})
-}
 
